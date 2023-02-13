@@ -1,0 +1,8 @@
+GET /profile/ HTTP/2
+Host: api.wieisdemol.nl
+Content-Type: 
+Authorization: Token $token
+Accept-Encoding: gzip, deflate
+User-Agent: okhttp/4.10.0
+Date: 2023-02-12T23:19:00.247
+

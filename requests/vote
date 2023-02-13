@@ -1,0 +1,10 @@
+POST /vote/ HTTP/2
+Host: api.wieisdemol.nl
+Authorization: Token $token
+Content-Type: application/json; charset=UTF-8
+Content-Length: 43
+Accept-Encoding: gzip, deflate
+User-Agent: okhttp/4.10.0
+Date: 2023-02-12T23:15:26.201
+
+{"votes":$votes}

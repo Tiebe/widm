@@ -1,0 +1,10 @@
+POST /profile/ HTTP/2
+Host: api.wieisdemol.nl
+Content-Type: application/json; charset=UTF-8
+Content-Length: 271
+Accept-Encoding: gzip, deflate
+User-Agent: okhttp/4.10.0
+X-Signature: HMAC widm-api:YLpwPl2/m42MBrf9jVVtbStpySjzkFjaFERoE8wAwF4=
+Date: 2023-02-12T23:14:21.042
+
+{"display_name":"sushcndnd","email":"gjjddk@gmail.com","password":"yjfjdndjd","push_token":"ccSuFN5OTGSLaZr5uumRVx:APA91bHC1te4q_ULv0XGt71ve13rnP-5Ckjj2F5WXzk8Q5cUEJDP0uYObmu0X4ZAICJfMRLKgrOAJ8UrPKVlD7fx25sLS7ND93Eb91astabSx86r5pxG2YWX55RQ-z_JuvezvbgPKRap","avatar":null}

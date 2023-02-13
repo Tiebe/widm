@@ -1,0 +1,10 @@
+POST /login/ HTTP/2
+Host: api.wieisdemol.nl
+Content-Type: application/json; charset=UTF-8
+Content-Length: 51
+Accept-Encoding: gzip, deflate
+User-Agent: okhttp/4.10.0
+X-Signature: HMAC widm-api:06WOOUIwNA2UtKChDNlc0+r6Ziw5nHaYjFO04oQ/g7M=
+Date: 2023-02-12T23:19:00.117
+
+{"email":"gjjddk@gmail.com","password":"yjfjdndjd"}

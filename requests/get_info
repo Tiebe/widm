@@ -1,0 +1,8 @@
+GET /config/ HTTP/2
+Host: api.wieisdemol.nl
+Content-Type: 
+Connection: close
+Accept-Encoding: gzip, deflate
+User-Agent: okhttp/4.10.0
+Date: 2023-02-12T02:46:05.429
+
