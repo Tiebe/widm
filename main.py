@@ -24,8 +24,8 @@ file = open("users-" + str(datetime.now().year) + ".txt", "r+")
 
 if file.read() == "":
     for candidate in candidates:
-        username = unidecode("teasstiebe-" + candidate['name'])
-        email = unidecode("tedsstwidm-" + candidate['name']+"@tiebe.dev")
+        username = unidecode("tiebe-" + candidate['name'])
+        email = unidecode("widm-" + candidate['name']+"@tiebe.dev")
         password = "widm2023"
 
         response = widm_requests.create_account(username, email, password, proxy)
