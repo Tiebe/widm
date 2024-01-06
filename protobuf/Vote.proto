@@ -16,3 +16,7 @@ message VoteMessage {
 
   repeated VotesMessage message = 1;
 }
+
+message PoolJoin {
+  string key = 1;
+}

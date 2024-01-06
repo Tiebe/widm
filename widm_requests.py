@@ -31,6 +31,30 @@ def vote(person, amount, token, proxy):
 def get_candidates(proxy=None):
     return json.loads(requests.get("https://app.wieisdemol.avrotros.nl/config.json", proxies=proxy).content)
 
+def login(email, password, proxy=None):
+    url = "https://api.app.wieisdemol.avrotros.nl/identity.v1.IdentityService/PasswordLogin"
+
+    data = CreateAccount.PasswordSignUp()
+    data.email = email
+    data.password = password
+
+    headers = {
+        "accept-encoding": "gzip",
+        "connect-protocol-version": "1",
+        "Connection": "Keep-Alive",
+        "Content-Type": "application/proto"
+    }
+
+    response = requests.post(url, data=data.SerializeToString(), headers=headers, proxies=proxy)
+
+    response_data = Parser().parse(bytes(response.content).hex())
+
+    return {
+        "access_token": str(response_data.results[0].data.results[0].data),
+        "refresh_token": str(response_data.results[0].data.results[1].data),
+        "user_id": str(response_data.results[1].data.results[0].data)
+    }
+
 def create_account(username, email, password, proxy=None):
     url = "https://api.app.wieisdemol.avrotros.nl/identity.v1.IdentityService/PasswordSignUp"
 
@@ -79,14 +103,12 @@ def set_username(username, token, proxy):
     headers = get_headers(token)
     data = CreateAccount.SetUsername()
     data.username = username
-    data.gender = 2
+    data.gender = 1
     data.age = 25
 
-    print(data.SerializeToString().hex())
 
-    usernameset = requests.post(url, data.SerializeToString(), headers, proxies=proxy)
+    usernameset = requests.post(url, data=data.SerializeToString(), headers=headers, proxies=proxy)
 
-    print("USername")
     print(usernameset.status_code)
     print(usernameset.content)
 
@@ -100,3 +122,13 @@ def set_notifcation_token(token, proxy):
     data.allowed = 2
 
     response = requests.post(url, headers=headers, data=data.SerializeToString(), proxies=proxy)
+
+def join_pool(key, token, proxy=None):
+    url = "https://api.app.wieisdemol.avrotros.nl/pool.v1.PoolService/JoinPool"
+    headers = get_headers(token)
+
+    data = Vote.PoolJoin()
+    data.key = key
+
+    response = requests.post(url, headers=headers, data= data.SerializeToString(), proxies=proxy)
+    print(response.status_code, response.content)

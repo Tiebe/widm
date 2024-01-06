@@ -7,6 +7,8 @@ from unidecode import unidecode
 from stem import Signal
 from stem.control import Controller
 
+pool_key = "REPLACE"
+
 def renew_connection():
     with Controller.from_port(port = 9051) as controller:
         controller.authenticate(password="password")
@@ -36,10 +38,12 @@ for candidate in remaining:
     if response is None:
         renew_connection()
         response = widm_requests.create_account(username, email, password)
+        if response is None:
+            raise Exception()
 
-    print(response)
+    widm_requests.set_username(username, response["access_token"], None)
+    widm_requests.join_pool(pool_key, response["access_token"], None)
 
-    widm_requests.vote(candidate, 100, response["access_token"], None)
-
+    print(f"Created account for {name}.")
     file.write(f"{str(username)}\t{str(email)}\t{str(password)}\n")
 
