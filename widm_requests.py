@@ -1,64 +1,102 @@
+import json
+
 import requests
 import hashlib
 import hmac
 import base64
+import protobuf.CreateAccount_pb2 as CreateAccount
+import protobuf.Vote_pb2 as Vote
+from protobuf_decoder.protobuf_decoder import Parser
 
 SECRET = bytes('d9913722-3b89-4705-a4b6-f5d413733e6a', 'utf-8')
 
+def vote(person, amount, token, proxy):
+    url = "https://api.app.wieisdemol.avrotros.nl/user.v1.UserVoteService/UpdateVote"
 
-def run_request(file_content, proxy = None):
-    headers, body = file_content.split('\n\n', 1)
+    headers = get_headers(token)
 
-    method, path, _ = headers.split(' ', 2)
+    data = Vote.VoteMessage()
+    vote_message = data.message.add()
+    vote_message.int = 1
 
-    if body and body[-1] == '\n':
-        body = body[:-1]
+    vote = vote_message.votes.add()
+    vote.person = person
+    vote.amount = amount
 
-    headers = headers.split('\n')[1:]
-    header_lookup = dict()
-    for header in headers:
-        name, value = header.split(': ', 1)
-        header_lookup[name] = value
+    print(data.SerializeToString().hex())
+    response = requests.post(url, headers=headers, data=data.SerializeToString(), proxies=proxy)
+    print(response.content)
+    print(response.status_code)
 
-    body_hashed = hashlib.sha256(body.encode('utf-8')).hexdigest()
-    message = f'{method}\n{body_hashed}\n{header_lookup["Content-Type"]}\n{header_lookup["Date"]}\n{path}'
-    hmac_value = base64.b64encode(hmac.new(SECRET, bytes(message, 'utf-8'), digestmod=hashlib.sha256).digest())
-    header_lookup["X-Signature"] = f'HMAC widm-api:{hmac_value.decode()}'
+def get_candidates(proxy=None):
+    return json.loads(requests.get("https://app.wieisdemol.avrotros.nl/config.json", proxies=proxy).content)
 
-    if method == "POST":
-        return requests.post('https://api.wieisdemol.nl'+path, headers=header_lookup, data=body, proxies=proxy)
+def create_account(username, email, password, proxy=None):
+    url = "https://api.app.wieisdemol.avrotros.nl/identity.v1.IdentityService/PasswordSignUp"
 
-    else:
-        return requests.get('https://api.wieisdemol.nl'+path, headers=header_lookup, data=body, proxies=proxy)
+    data = CreateAccount.PasswordSignUp()
+    data.email = email
+    data.password = password
 
+    headers = {
+        "accept-encoding": "gzip",
+        "connect-protocol-version": "1",
+        "Connection": "Keep-Alive",
+        "Content-Type": "application/proto"
+    }
 
+    response = requests.post(url, data=data.SerializeToString(), headers=headers, proxies=proxy)
 
-def get_info():
-    return run_request(open("requests/get_info").read())
+    if response.status_code == 429:
+        return None
 
+    response_data = Parser().parse(bytes(response.content).hex())
+    token = response_data.results[0].data.results[0].data
 
-def create_account(username, email, password, proxy = None):
-    data = open("requests/create_account").read().replace("$username", username).replace("$email", email).replace("$password", password)
+    set_notifcation_token(token, proxy)
+    set_username(username, token, proxy)
 
+    return {
+        "access_token": str(response_data.results[0].data.results[0].data),
+        "refresh_token": str(response_data.results[0].data.results[1].data),
+        "user_id": str(response_data.results[1].data.results[0].data)
+    }
 
-    return run_request(data, proxy)
+def get_headers(token):
+    return {
+        "accept-encoding": "gzip",
+        "connect-protocol-version": "1",
+        "Connection": "Keep-Alive",
+        "Content-Type": "application/proto",
+        "Host": "api.app.wieisdemol.avrotros.nl",
+        "user-agent": "connect-kotlin/0.0",
+        "Authorization": "Bearer " + token
+    }
 
-def get_profile(token):
-    return run_request(open("requests/profile_get").read().replace("$token", token))
+def set_username(username, token, proxy):
+    url = "https://api.app.wieisdemol.avrotros.nl/user.v1.UserProfileService/SetProfile"
 
-def vote(token, candidates, candidate, score):
-    data = open("requests/vote").read().replace("$token", token)
+    headers = get_headers(token)
+    data = CreateAccount.SetUsername()
+    data.username = username
+    data.gender = 2
+    data.age = 25
 
-    votes = {}
+    print(data.SerializeToString().hex())
 
-    for vote in candidates:
-        if candidates[vote] == candidate:
-            votes[candidates[vote]["id"]] = score
-        else:
-            votes[candidates[vote]["id"]] = 0
+    usernameset = requests.post(url, data.SerializeToString(), headers, proxies=proxy)
 
-    data = data.replace("$votes", str(votes).replace("'", '"'))
+    print("USername")
+    print(usernameset.status_code)
+    print(usernameset.content)
 
-    print(data)
+def set_notifcation_token(token, proxy):
+    url = "https://api.app.wieisdemol.avrotros.nl/user.v1.UserProfileService/SetNotificationToken"
 
-    return run_request(data)
+    headers = get_headers(token)
+
+    data = CreateAccount.NotificationToken()
+    data.token = "cLlfgf-ZQtKB7aR42ybrxd:APA91bEP8-ddcRfJnXMgkG97EoB_Pxr8KvWLNT_YrqSvOaTTtxby-WeXdMU-1h3mSTghLN7zZH0R7K5PGvo-fw0QXakUAfanBCBgfph_mDWZLGeCERjDFiWZcyFh6i_c9KUKvP22vedh"
+    data.allowed = 2
+
+    response = requests.post(url, headers=headers, data=data.SerializeToString(), proxies=proxy)

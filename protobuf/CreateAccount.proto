@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package widm;
+
+message PasswordSignUp {
+  string email = 1;
+  string password = 2;
+}
+
+message SetUsername {
+  string username = 1;
+  int32 gender = 2;
+  int32 age = 3;
+}
+
+
+message NotificationToken {
+  string token = 1;
+  int32 allowed = 2;
+}

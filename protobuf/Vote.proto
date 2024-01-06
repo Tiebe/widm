@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package widm;
+
+message VoteMessage {
+  message VotesMessage {
+    int32 int = 1;
+
+    message Vote {
+      string person = 1;
+      int32 amount = 2;
+    }
+
+    repeated Vote votes = 2;
+  }
+
+  repeated VotesMessage message = 1;
+}
