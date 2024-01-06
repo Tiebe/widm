@@ -20,13 +20,13 @@ for candidate in candidates:
 proxy = {'http':  'socks5://127.0.0.1:9050',
                        'https': 'socks5://127.0.0.1:9050'}
 
-file = open("users-" + str(datetime.now().year) + ".txt", "r+")
+file = open("users-" + str(datetime.now().year) + ".txt", "w+")
 
 if file.read() == "":
     for candidate in candidates:
         username = unidecode("tiebe-" + candidate['name'])
-        email = unidecode("widm-" + candidate['name']+"@tiebe.dev")
-        password = "widm2023"
+        email = unidecode("widm2024-" + candidate['name']+"@tiebe.dev")
+        password = "widm2024"
 
         response = widm_requests.create_account(username, email, password, proxy)
 
@@ -38,7 +38,8 @@ if file.read() == "":
         json_response = json.loads(response.content)
         print(response.content)
 
-        file.write(f"{username}\t{email}\t{password}\t{json_response['token']}\n")
+        print(json_response)
+        file.write(f"{username}\t{email}\t{password}\n")
 
 else:
     file.seek(0)
